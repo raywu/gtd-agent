@@ -1,0 +1,6 @@
+# Keep private/user-specific configuration out of the public repo
+.local/
+private/
+.env
+.env.*
+*.secret
