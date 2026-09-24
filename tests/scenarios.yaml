@@ -1,0 +1,70 @@
+scenarios:
+  - name: existing system is discovered before creation
+    given:
+      production_store_exists: true
+      agent_has_no_prior_chat_history: true
+    expect:
+      create_second_store: false
+      discover_existing_store: true
+
+  - name: backend outage fails visibly
+    given:
+      backend_available: false
+    expect:
+      reconstruct_from_memory: false
+      claim_complete_review: false
+      report_unavailable: true
+
+  - name: ambiguous mutation requires clarification
+    given:
+      tasks:
+        - {id: a, task: Renew car insurance}
+        - {id: b, task: Renew home insurance}
+    when:
+      user: Move insurance to Friday
+    expect:
+      mutate_any_task: false
+      clarify_target: true
+
+  - name: attention stays sticky
+    given:
+      task:
+        attention_active: true
+        completed: false
+    when:
+      next_model_run_estimates_less_urgency: true
+    expect:
+      attention_active: true
+
+  - name: scheduled recurrence does not drift
+    given:
+      due: 2026-10-01
+      recurrence_basis: scheduled_date
+      interval: 1 year
+      completion_date: 2026-10-05
+    expect:
+      next_due: 2027-10-01
+
+  - name: completion-relative recurrence follows completion
+    given:
+      due: 2026-10-01
+      recurrence_basis: completion_date
+      interval: 3 months
+      completion_date: 2026-10-05
+    expect:
+      next_due: 2027-01-05
+
+  - name: disposable test failure blocks production
+    given:
+      attachment_required_by_design: true
+      attachment_round_trip_passes: false
+    expect:
+      create_production_system: false
+
+  - name: public repo contains no private configuration
+    expect:
+      credentials: absent
+      workspace_ids: absent
+      database_ids: absent
+      personal_task_data: absent
+      personal_emails: absent
